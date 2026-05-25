@@ -1,0 +1,3 @@
+[submodule "assets/limxdynamics"]
+	path = assets/limxdynamics
+	url = https://github.com/limxdynamics/humanoid-description.git
