@@ -1,4 +1,5 @@
-from general_motion_retargeting import RobotMotionViewer, load_robot_motion
+from general_motion_retargeting import RobotMotionViewer
+from general_motion_retargeting.data_loader import load_robot_motion_for_viewer
 import argparse
 import os
 from tqdm import tqdm
@@ -35,14 +36,16 @@ if __name__ == "__main__":
     if not os.path.exists(robot_motion_folder):
         raise FileNotFoundError(f"Motion data dir {robot_motion_folder} does not exist.")
     
-    motion_files = [f for f in os.listdir(robot_motion_folder) if f.endswith('.pkl')]
+    motion_files = [f for f in os.listdir(robot_motion_folder) if f.endswith(('.pkl', '.npz'))]
     motion_files = sorted(motion_files)
     motion_num = len(motion_files)
     print(f"Found {motion_num} motion files in {robot_motion_folder}, loading...")
     motion_dataset = []
     for motion_file in tqdm(motion_files):
         motion_path = os.path.join(robot_motion_folder, motion_file)
-        motion_data, motion_fps, motion_root_pos, motion_root_rot, motion_dof_pos, motion_local_body_pos, motion_link_body_list = load_robot_motion(motion_path)
+        motion_data, motion_fps, motion_root_pos, motion_root_rot, motion_dof_pos, motion_local_body_pos, motion_link_body_list = load_robot_motion_for_viewer(
+            motion_path, robot_type
+        )
         motion_dataset.append({
             "motion_file": motion_file,
             "motion_data": motion_data,

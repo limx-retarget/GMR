@@ -41,7 +41,14 @@ Thumbs.db
 data/
 data_record/
 Download/
-assets/body_models/
+# body_models: only vendored SMPL-X .pkl are tracked (see assets/body_models/smplx/)
+assets/body_models/*
+!assets/body_models/smplx/
+assets/body_models/smplx/*
+!assets/body_models/smplx/README.md
+!assets/body_models/smplx/SMPLX_NEUTRAL.pkl
+!assets/body_models/smplx/SMPLX_FEMALE.pkl
+!assets/body_models/smplx/SMPLX_MALE.pkl
 
 # Media files
 *.mp4
@@ -58,10 +65,13 @@ assets/body_models/
 *.rar
 *.7z
 
-# Model files
+# Model files (repo-wide; SMPL-X vendored pkls are un-ignored below)
 smplx/
 body_models/
 *.pkl
+!assets/body_models/smplx/SMPLX_NEUTRAL.pkl
+!assets/body_models/smplx/SMPLX_FEMALE.pkl
+!assets/body_models/smplx/SMPLX_MALE.pkl
 *.pth
 *.pt
 *.ckpt

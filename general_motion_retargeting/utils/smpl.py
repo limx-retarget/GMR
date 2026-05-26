@@ -18,6 +18,7 @@ def load_smplx_file(smplx_file, smplx_body_model_path):
         "smplx",
         gender=str(smplx_data["gender"]),
         use_pca=False,
+        ext="pkl",
     )
     # print(smplx_data["pose_body"].shape)
     # print(smplx_data["betas"].shape)

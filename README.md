@@ -1,3 +1,109 @@
+## Quick Start (LimX OLI EDU & BeyondMimic Motion Export)
+
+This section documents the **latest setup, usage, and output format** in this fork. Saved robot motions are aligned with [BeyondMimic](https://github.com/HybridRobotics/whole_body_tracking) / Isaac Lab reference-motion conventions (`.npz` or `.pkl` with the same keys).
+
+### Installation
+
+Tested on **Ubuntu 22.04 / 20.04**.
+
+```bash
+conda create -n gmr python=3.10 -y
+conda activate gmr
+pip install -e .
+conda install -c conda-forge libstdcxx-ng -y
+```
+
+**SMPL-X body models** — **included in this repo** under `assets/body_models/smplx/` (`SMPLX_NEUTRAL.pkl`, `SMPLX_FEMALE.pkl`, `SMPLX_MALE.pkl`). After clone, install [Git LFS](https://git-lfs.com/) and run `git lfs pull` if the `.pkl` files are pointer stubs.
+
+No manual download from the SMPL-X website is required for retargeting. Models remain under the [SMPL-X license](https://smpl-x.is.tue.mpg.de/); see `assets/body_models/smplx/README.md`.
+
+Loading uses `ext="pkl"` in `general_motion_retargeting/utils/smpl.py` (not a `site_packages` patch).
+
+**Robot assets** — LimX OLI EDU model is vendored under `assets/limx_oli_edu/` (MuJoCo XML: `xml/HU_D04_01_vis.xml`, pure serial **31 DoF**, no parallel-mechanism filtering required).
+
+### LimX OLI EDU (`limx_oli_edu`)
+
+| Item | Value |
+| --- | --- |
+| Robot key | `limx_oli_edu` |
+| DoF | 31 series joints (12 leg + 3 waist + 2 head + 14 arm) |
+| Base body | `base_link` |
+| IK configs | `smplx_to_oli_edu.json`, `bvh_lafan1_to_oli_edu.json` |
+| Input | SMPL-X (AMASS / OMOMO) or BVH (LAFAN1) |
+
+### Usage
+
+**SMPL-X → robot** (default output fps: 30):
+
+```bash
+python scripts/smplx_to_robot.py \
+  --smplx_file <path_to_smplx.npz_or.pkl> \
+  --robot limx_oli_edu \
+  --save_path output/lx_motion.npz
+```
+
+**BVH (LAFAN1) → robot**:
+
+```bash
+python scripts/bvh_to_robot.py \
+  --bvh_file <path_to.bvh> \
+  --robot limx_oli_edu \
+  --format lafan1 \
+  --save_path output/lx_motion.npz
+```
+
+**Visualize saved motion** (supports new `.npz` and legacy `.pkl`):
+
+```bash
+python scripts/vis_robot_motion.py \
+  --robot limx_oli_edu \
+  --robot_motion_path output/lx_motion.npz
+```
+
+Add `--record_video --video_path videos/demo.mp4` to record video. Remove `--rate_limit` on retargeting scripts for maximum speed.
+
+**Export CSV for BeyondMimic `csv_to_npz` pipeline** (root xyz + quat xyzw + joints):
+
+```bash
+python scripts/batch_gmr_pkl_to_csv.py --folder output/
+# writes output/csv/*.csv
+```
+
+### Robot Motion Data Format (BeyondMimic-aligned)
+
+When `--save_path` is set, `smplx_to_robot.py` and `bvh_to_robot.py` write a dict with these keys (via `general_motion_retargeting/motion_export.py`):
+
+| Key | Shape | Description |
+| --- | --- | --- |
+| `fps` | `(1,)` | Frame rate, e.g. `[30.]` |
+| `joint_pos` | `(T, N)` | Actuated joint angles [rad] (**excludes** floating base) |
+| `joint_vel` | `(T, N)` | Joint velocities [rad/s] |
+| `body_pos_w` | `(T, B, 3)` | Body positions in world frame [m] |
+| `body_quat_w` | `(T, B, 4)` | Body orientations in world frame, **wxyz** |
+| `body_lin_vel_w` | `(T, B, 3)` | Body linear velocities [m/s] |
+| `body_ang_vel_w` | `(T, B, 3)` | Body angular velocities [rad/s] |
+| `joint_names` | `(N,)` | Joint names, same order as `joint_pos` columns |
+| `body_names` | `(B,)` | Body names (world body excluded), same order as body tensors |
+
+For `limx_oli_edu`: `N = 31`, `B = 42` (example after retargeting).
+
+**File extension:** `.npz` (recommended, matches BeyondMimic) or `.pkl` (same fields).
+
+**Load in Python:**
+
+```python
+import numpy as np
+motion = dict(np.load("output/lx_motion.npz", allow_pickle=True))
+print(motion["joint_pos"].shape, motion["fps"], list(motion["joint_names"][:3]))
+```
+
+**`joint_pos` column order (`limx_oli_edu`, 31 joints):**  
+left leg (6) → right leg (6) → waist (3) → head (2) → left arm (7) → right arm (7), e.g. `left_hip_pitch_joint` … `right_wrist_roll_joint`.
+
+**Legacy format** (older runs): `root_pos`, `root_rot` (xyzw), `dof_pos` — still readable by `load_robot_motion()` / visualization helpers.
+
+---
+
 # GMR: General Motion Retargeting
 
   <a href="https://arxiv.org/abs/2505.02833">
@@ -196,7 +302,7 @@ Then, install GMR:
 pip install -e .
 ```
 
-After installing SMPLX, change `ext` in `smplx/body_models.py` from `npz` to `pkl` if you are using SMPL-X pkl files.
+SMPL-X body models (`.pkl`) are **bundled** in `assets/body_models/smplx/`; use `git lfs pull` after clone. No `site_packages` edit is required (`utils/smpl.py` passes `ext="pkl"`).
 
 And to resolve some possible rendering issues:
 
@@ -206,13 +312,7 @@ conda install -c conda-forge libstdcxx-ng -y
 
 ## Data Preparation
 
-[[SMPLX](https://github.com/vchoutas/smplx) body model] download SMPL-X body models to `assets/body_models` from [SMPL-X](https://smpl-x.is.tue.mpg.de/) and then structure as follows:
-```bash
-- assets/body_models/smplx/
--- SMPLX_NEUTRAL.pkl
--- SMPLX_FEMALE.pkl
--- SMPLX_MALE.pkl
-```
+[[SMPLX](https://github.com/vchoutas/smplx) body model] **included** in `assets/body_models/smplx/` (Git LFS). See Quick Start above; comply with the [SMPL-X license](https://smpl-x.is.tue.mpg.de/).
 
 [[AMASS](https://amass.is.tue.mpg.de/) motion data] download raw SMPL-X data to any folder you want from [AMASS](https://amass.is.tue.mpg.de/). NOTE: Do not download SMPL+H data.
 

@@ -9,6 +9,34 @@ from rich import print
 
 class GeneralMotionRetargeting:
     """General Motion Retargeting (GMR).
+
+    Frozen joints (parallel-mechanism filtering)
+    --------------------------------------------
+    An IK config JSON may declare an optional top-level field ``frozen_joints``
+    listing joint names that must remain at their initial value throughout
+    every IK solve. This is used by robots that have parallel four-bar
+    mechanisms (e.g. LimX OLI D04's ankle / waist achilles linkages) without
+    modifying the original MuJoCo XML.
+
+    Concretely, for every joint name listed in ``frozen_joints``:
+
+    * Its velocity bound in ``mink.VelocityLimit`` is set to ~0, so the QP
+      solver does not produce updates along that degree of freedom.
+    * After each call to :meth:`retarget`, the corresponding ``qpos`` slice
+      is force-reset to its initial value (``0`` for hinge joints, identity
+      quaternion ``[1, 0, 0, 0]`` for ball joints) and ``mj_kinematics`` is
+      re-run so derived body transforms stay consistent.
+
+    Deployment caveat
+    ~~~~~~~~~~~~~~~~~
+    The returned ``qpos`` is a *logical* pose: the parallel-mechanism joints
+    that GMR keeps at zero are still present in the MuJoCo model along with
+    their equality constraints. Feeding the full ``qpos`` directly into a
+    physics ``mj_step`` will violate those equality constraints (the
+    simulator will explode). Downstream users SHOULD extract only the series
+    joint angles (the ones not listed in ``frozen_joints``) and use them as
+    motor targets. Forward-kinematics-only visualization (``vis_robot_motion``)
+    is unaffected.
     """
     def __init__(
         self,
@@ -21,6 +49,7 @@ class GeneralMotionRetargeting:
         use_velocity_limit: bool=False,
     ) -> None:
 
+        self.tgt_robot = tgt_robot
         # load the robot model
         self.xml_file = str(ROBOT_XML_DICT[tgt_robot])
         if verbose:
@@ -95,14 +124,102 @@ class GeneralMotionRetargeting:
         self.task_errors1 = {}
         self.task_errors2 = {}
 
+        # Parse optional frozen_joints field (parallel-mechanism filtering).
+        # See class docstring for full semantics.
+        frozen_joint_names = ik_config.get("frozen_joints", [])
+        self.frozen_qpos_addr = self._resolve_frozen_joints(frozen_joint_names)
+        # mink.VelocityLimit expects shape (nv_of_joint,) per joint: scalar for
+        # hinge/slide (1 dof), length-3 array for ball (3 rotational dofs).
+        frozen_velocity_limits = self._build_frozen_velocity_limits(frozen_joint_names)
+
         self.ik_limits = [mink.ConfigurationLimit(self.model)]
         if use_velocity_limit:
             VELOCITY_LIMITS = {k: 3*np.pi for k in self.robot_motor_names.keys()}
-            self.ik_limits.append(mink.VelocityLimit(self.model, VELOCITY_LIMITS)) 
-            
+            # Override frozen joints to ~0 velocity within the same limit object.
+            VELOCITY_LIMITS.update(frozen_velocity_limits)
+            self.ik_limits.append(mink.VelocityLimit(self.model, VELOCITY_LIMITS))
+        elif frozen_velocity_limits:
+            # Attach a dedicated zero-velocity limit just for the frozen joints.
+            self.ik_limits.append(mink.VelocityLimit(self.model, frozen_velocity_limits))
+
         self.setup_retarget_configuration()
         
         self.ground_offset = 0.0
+
+    def _resolve_frozen_joints(self, joint_names):
+        """Resolve a list of joint names into (qadr, dim, init_value) tuples.
+
+        Hinge joints freeze to ``0.0`` (single qpos slot). Ball joints freeze
+        to the identity quaternion ``[1, 0, 0, 0]`` (four qpos slots). Free
+        joints are rejected because freezing the floating base would defeat
+        the whole retargeting pipeline.
+
+        Raises
+        ------
+        ValueError
+            If a joint name is not present in the loaded MuJoCo model, or if
+            a joint with an unsupported type (free) is listed.
+        """
+        resolved = []
+        for jname in joint_names:
+            try:
+                jid = self.model.joint(jname).id
+            except KeyError:
+                raise ValueError(
+                    f"frozen_joints contains unknown joint '{jname}' "
+                    f"for robot '{self.tgt_robot}'."
+                )
+            qadr = int(self.model.jnt_qposadr[jid])
+            jtype = int(self.model.jnt_type[jid])
+            if jtype == mj.mjtJoint.mjJNT_HINGE or jtype == mj.mjtJoint.mjJNT_SLIDE:
+                dim = 1
+                init_value = np.array([0.0], dtype=np.float64)
+            elif jtype == mj.mjtJoint.mjJNT_BALL:
+                dim = 4
+                init_value = np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float64)
+            elif jtype == mj.mjtJoint.mjJNT_FREE:
+                raise ValueError(
+                    f"frozen_joints may not contain free joint '{jname}' "
+                    f"for robot '{self.tgt_robot}'."
+                )
+            else:
+                raise ValueError(
+                    f"frozen_joints contains joint '{jname}' with "
+                    f"unsupported MuJoCo type {jtype} for robot "
+                    f"'{self.tgt_robot}'."
+                )
+            resolved.append((qadr, dim, init_value))
+        return resolved
+
+    def _build_frozen_velocity_limits(self, joint_names):
+        """Build the per-joint velocity-limit mapping for ``mink.VelocityLimit``.
+
+        mink requires the limit value shape to match the joint's nv:
+          * hinge / slide -> scalar (1 dof)
+          * ball          -> array of shape (3,) (3 rotational dofs)
+        """
+        if not joint_names:
+            return {}
+        limits = {}
+        eps = 1e-9
+        for jname in joint_names:
+            jid = self.model.joint(jname).id
+            jtype = int(self.model.jnt_type[jid])
+            if jtype == mj.mjtJoint.mjJNT_BALL:
+                limits[jname] = np.array([eps, eps, eps], dtype=np.float64)
+            else:
+                limits[jname] = eps
+        return limits
+
+    def _restore_frozen_joints(self):
+        """Force-restore every frozen joint's qpos slice to its initial value
+        and refresh derived body transforms via ``mj_kinematics``."""
+        if not self.frozen_qpos_addr:
+            return
+        qpos = self.configuration.data.qpos
+        for qadr, dim, init_value in self.frozen_qpos_addr:
+            qpos[qadr:qadr + dim] = init_value
+        mj.mj_kinematics(self.model, self.configuration.data)
 
     def setup_retarget_configuration(self):
         self.configuration = mink.Configuration(self.model)
@@ -215,7 +332,10 @@ class GeneralMotionRetargeting:
                 next_error = self.error2()
                 num_iter += 1
                 
-            
+        # Force frozen joints (e.g. parallel four-bar mechanisms) back to
+        # their initial value so QP numerical drift does not accumulate.
+        self._restore_frozen_joints()
+
         return self.configuration.data.qpos.copy()
 
 

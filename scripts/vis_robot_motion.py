@@ -1,4 +1,5 @@
-from general_motion_retargeting import RobotMotionViewer, load_robot_motion
+from general_motion_retargeting import RobotMotionViewer
+from general_motion_retargeting.data_loader import load_robot_motion_for_viewer
 import argparse
 import os
 from tqdm import tqdm
@@ -21,7 +22,9 @@ if __name__ == "__main__":
     if not os.path.exists(robot_motion_path):
         raise FileNotFoundError(f"Motion file {robot_motion_path} not found")
     
-    motion_data, motion_fps, motion_root_pos, motion_root_rot, motion_dof_pos, motion_local_body_pos, motion_link_body_list = load_robot_motion(robot_motion_path)
+    motion_data, motion_fps, motion_root_pos, motion_root_rot, motion_dof_pos, motion_local_body_pos, motion_link_body_list = load_robot_motion_for_viewer(
+        robot_motion_path, robot_type
+    )
     
     env = RobotMotionViewer(robot_type=robot_type,
                             motion_fps=motion_fps,
