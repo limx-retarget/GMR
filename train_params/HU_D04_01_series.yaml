@@ -1,0 +1,154 @@
+# Copyright 2026 LimX Dynamics. All rights reserved.
+# Confidential and Proprietary. Unauthorized distribution prohibited.
+
+control:
+  # PD Drive parameters: (useless here)
+  action_scale:
+    - 0.2511  # left_hip_pitch_joint
+    - 0.2511  # left_hip_roll_joint
+    - 0.2511  # left_hip_yaw_joint
+    - 0.2511  # left_knee_joint
+    - 0.1121  # left_ankle_pitch_joint
+    - 0.1121  # left_ankle_roll_joint
+
+    - 0.2511  # right_hip_pitch_joint
+    - 0.2511  # right_hip_roll_joint
+    - 0.2511  # right_hip_yaw_joint
+    - 0.2511  # right_knee_joint
+    - 0.1121  # right_ankle_pitch_joint
+    - 0.1121  # right_ankle_roll_joint
+    
+    - 0.1121  # waist_yaw_joint
+    - 0.1121  # waist_roll_joint
+    - 0.1121  # waist_pitch_joint
+    
+    - 0.3141  # head_yaw_joint
+    - 0.3141  # head_pitch_joint
+    
+    - 0.1200  # left_shoulder_pitch_joint
+    - 0.1200  # left_shoulder_roll_joint
+    - 0.1200  # left_shoulder_yaw_joint
+    - 0.1200  # left_elbow_joint
+    - 0.3141  # left_wrist_yaw_joint
+    - 0.3141  # left_wrist_pitch_joint
+    - 0.3141  # left_wrist_roll_joint
+
+    - 0.1200  # right_shoulder_pitch_joint
+    - 0.1200  # right_shoulder_roll_joint
+    - 0.1200  # right_shoulder_yaw_joint
+    - 0.1200  # right_elbow_joint
+    - 0.3141  # right_wrist_yaw_joint
+    - 0.3141  # right_wrist_pitch_joint
+    - 0.3141  # right_wrist_roll_joint
+  kp:
+    - 139.41  # left_hip_pitch_joint
+    - 139.41  # left_hip_roll_joint
+    - 139.41  # left_hip_yaw_joint
+    - 139.41  # left_knee_joint
+    - 93.65   # left_ankle_pitch_joint
+    - 93.65   # left_ankle_roll_joint
+
+    - 139.41  # right_hip_pitch_joint
+    - 139.41  # right_hip_roll_joint
+    - 139.41  # right_hip_yaw_joint
+    - 139.41  # right_knee_joint
+    - 93.65   # right_ankle_pitch_joint
+    - 93.65   # right_ankle_roll_joint
+
+    - 93.65   # waist_yaw_joint
+    - 93.65   # waist_roll_joint
+    - 93.65   # waist_pitch_joint
+
+    - 15.12   # head_yaw_joint
+    - 15.12   # head_pitch_joint
+
+    - 87.51   # left_shoulder_pitch_joint
+    - 87.51   # left_shoulder_roll_joint
+    - 87.51   # left_shoulder_yaw_joint
+    - 87.51   # left_elbow_joint
+    - 15.12   # left_wrist_yaw_joint
+    - 15.12   # left_wrist_pitch_joint
+    - 15.12   # left_wrist_roll_joint
+
+    - 87.51   # right_shoulder_pitch_joint
+    - 87.51   # right_shoulder_roll_joint
+    - 87.51   # right_shoulder_yaw_joint
+    - 87.51   # right_elbow_joint
+    - 15.12   # right_wrist_yaw_joint
+    - 15.12   # right_wrist_pitch_joint
+    - 15.12   # right_wrist_roll_joint
+  kd:
+    - 17.75  # left_hip_pitch_joint
+    - 17.75  # left_hip_roll_joint
+    - 17.75  # left_hip_yaw_joint
+    - 17.75  # left_knee_joint
+    - 11.92  # left_ankle_pitch_joint
+    - 11.92  # left_ankle_roll_joint
+
+    - 17.75  # right_hip_pitch_joint
+    - 17.75  # right_hip_roll_joint
+    - 17.75  # right_hip_yaw_joint
+    - 17.75  # right_knee_joint
+    - 11.92  # right_ankle_pitch_joint
+    - 11.92  # right_ankle_roll_joint
+
+    - 11.92  # waist_yaw_joint
+    - 11.92  # waist_roll_joint
+    - 11.92  # waist_pitch_joint
+
+    - 1.93   # head_yaw_joint
+    - 1.93   # head_pitch_joint
+
+    - 11.14  # left_shoulder_pitch_joint
+    - 11.14  # left_shoulder_roll_joint
+    - 11.14  # left_shoulder_yaw_joint
+    - 11.14  # left_elbow_joint
+    - 1.93   # left_wrist_yaw_joint
+    - 1.93   # left_wrist_pitch_joint
+    - 1.93   # left_wrist_roll_joint
+
+    - 11.14  # right_shoulder_pitch_joint
+    - 11.14  # right_shoulder_roll_joint
+    - 11.14  # right_shoulder_yaw_joint
+    - 11.14  # right_elbow_joint
+    - 1.93   # right_wrist_yaw_joint
+    - 1.93   # right_wrist_pitch_joint
+    - 1.93   # right_wrist_roll_joint
+  armature:
+    - 0.14125     # left_hip_pitch_joint
+    - 0.14125     # left_hip_roll_joint
+    - 0.14125     # left_hip_yaw_joint
+    - 0.14125     # left_knee_joint
+    - 0.1845504   # left_ankle_pitch_joint
+    - 0.1845504   # left_ankle_roll_joint
+
+    - 0.14125     # right_hip_pitch_joint
+    - 0.14125     # right_hip_roll_joint
+    - 0.14125     # right_hip_yaw_joint
+    - 0.14125     # right_knee_joint
+    - 0.1845504   # right_ankle_pitch_joint
+    - 0.1845504   # right_ankle_roll_joint
+
+    - 0.1845504   # waist_yaw_joint
+    - 0.1845504   # waist_roll_joint
+    - 0.1845504   # waist_pitch_joint
+
+    - 0.0153218   # head_yaw_joint
+    - 0.0153218   # head_pitch_joint
+
+    - 0.0886706   # left_shoulder_pitch_joint
+    - 0.0886706   # left_shoulder_roll_joint
+    - 0.0886706   # left_shoulder_yaw_joint
+    - 0.0886706   # left_elbow_joint
+    - 0.0153218   # left_wrist_yaw_joint
+    - 0.0153218   # left_wrist_pitch_joint
+    - 0.0153218   # left_wrist_roll_joint
+
+    - 0.0886706   # right_shoulder_pitch_joint
+    - 0.0886706   # right_shoulder_roll_joint
+    - 0.0886706   # right_shoulder_yaw_joint
+    - 0.0886706   # right_elbow_joint
+    - 0.0153218   # right_wrist_yaw_joint
+    - 0.0153218   # right_wrist_pitch_joint
+    - 0.0153218   # right_wrist_roll_joint
+  
