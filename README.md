@@ -1,6 +1,6 @@
-## Quick Start (LimX OLI EDU & BeyondMimic Motion Export)
+## Quick Start (LimX Robots & BeyondMimic Motion Export)
 
-This section documents the **latest setup, usage, and output format** in this fork. Saved robot motions are aligned with [BeyondMimic](https://github.com/HybridRobotics/whole_body_tracking) / Isaac Lab reference-motion conventions (`.npz` or `.pkl` with the same keys).
+This section documents the **latest setup, usage, and output format** in this fork: two LimX robots (`limx_oli_edu`, `limx_luna`) plus motion export aligned with [BeyondMimic](https://github.com/HybridRobotics/whole_body_tracking) / Isaac Lab reference-motion conventions.
 
 ### Installation
 
@@ -19,7 +19,7 @@ No manual download from the SMPL-X website is required for retargeting. Models r
 
 Loading uses `ext="pkl"` in `general_motion_retargeting/utils/smpl.py` (not a `site_packages` patch).
 
-**Robot assets** — LimX OLI EDU model is vendored under `assets/limx_oli_edu/` (MuJoCo XML: `xml/HU_D04_01_vis.xml`, pure serial **31 DoF**, no parallel-mechanism filtering required).
+**Robot assets** — LimX OLI EDU is vendored under `assets/limx_oli_edu/`. LimX Luna is **not** vendored: its description is the private `luna-description` submodule, fetched separately (see below).
 
 ### LimX OLI EDU (`limx_oli_edu`)
 
@@ -28,8 +28,86 @@ Loading uses `ext="pkl"` in `general_motion_retargeting/utils/smpl.py` (not a `s
 | Robot key | `limx_oli_edu` |
 | DoF | 31 series joints (12 leg + 3 waist + 2 head + 14 arm) |
 | Base body | `base_link` |
-| IK configs | `smplx_to_oli_edu.json`, `bvh_lafan1_to_oli_edu.json` |
-| Input | SMPL-X (AMASS / OMOMO) or BVH (LAFAN1) |
+| MuJoCo XML | `assets/limx_oli_edu/xml/HU_D04_01_vis.xml` (pure serial, no parallel-mechanism filtering) |
+| IK configs | `{smplx,bvh_lafan1,bvh_nokov,bvh_xsens,bvh_fzmotion,bvh_noitom}_to_oli_edu.json` |
+
+### LimX Luna / HU_L04 (`limx_luna`)
+
+| Item | Value |
+| --- | --- |
+| Robot key | `limx_luna` |
+| DoF | 27 series joints (12 leg + 3 waist + 2 head + 10 arm) |
+| Base body | `base_link` |
+| MuJoCo XML | `assets/luna-description/HU_L04_description/xml/HU_L04_01_vis.xml` (submodule) |
+| IK configs | `{smplx,bvh_lafan1,bvh_nokov,bvh_xsens,bvh_fzmotion,bvh_noitom}_to_luna.json` |
+| Downstream | [luna-beyondmimic](https://github.com/limx-luna/luna-beyondmimic) motion tracking |
+
+Each arm ends at `wrist_yaw` (5 DoF per arm, no wrist pitch/roll), so IK targets the `*_wrist_yaw_link`.
+
+Luna targets are normalized to the configured 1.8 m reference skeleton, and the first frame's root
+XY position is moved to the origin. Root Z and the subsequent XY trajectory are preserved.
+
+**Fetch the description** (private repository, requires access):
+
+```bash
+git submodule update --init assets/luna-description
+```
+
+Already have a checkout elsewhere? Point at it instead of adding the submodule:
+
+```bash
+export LUNA_DESCRIPTION_DIR=/path/to/luna-description   # dir containing HU_L04_description/
+```
+
+### Input formats for the LimX robots
+
+Both robots accept these capture formats. Each row is the `--robot limx_oli_edu` / `--robot limx_luna` entry point for that format.
+
+| Format | Entry point | Notes |
+| --- | --- | --- |
+| SMPL-X (AMASS / OMOMO) | `scripts/smplx_to_robot.py` | also the path GVHMR video output takes |
+| BVH (LAFAN1) | `scripts/bvh_to_robot.py --format lafan1` | |
+| BVH (Nokov) | `scripts/bvh_to_robot.py --format nokov` | |
+| BVH (FZMotion) | `scripts/bvh_to_robot.py --format fzmotion` | chest is `Chest`, not `Spine2` |
+| BVH (Noitom) | `scripts/bvh_to_robot.py --format noitom` | no toe joint, so the ankle keeps its own orientation |
+
+These two sources are loaded the way agmr loads them, which differs from LAFAN1 and Nokov in two
+ways that decide where the IK targets land:
+
+- **Yaw of the up-axis conversion.** Both conventions raise Y to Z, but LAFAN1/Nokov use
+  `[[1,0,0],[0,0,-1],[0,1,0]]` while these use `[[0,0,1],[1,0,0],[0,1,0]]`, 90 degrees apart. Only
+  the second puts the subject's left-right axis on the robot's Y; with the first, the targets sit
+  sideways and the robot reaches both arms forward.
+- **Ground normalisation.** Each clip is shifted down onto the floor at load time so the root and
+  feet use the same height origin.
+| BVH (Xsens, 3ds Max export) | `scripts/xsens_bvh_to_robot.py --bvh_format 3DSM` | `offsets.json` is optional; without it all channel offsets are zero |
+
+OptiTrack FBX is supported for the Unitree G1 only.
+
+The IK configs were calibrated with `scripts/_calibrate_ik_offsets.py`, which scores a config by how
+closely the retargeted robot reproduces the human limb *directions* (lower is better; the upstream
+Unitree G1 configs score 10-14 degrees on their own test data).
+
+> [!IMPORTANT]
+> **Xsens bone conventions are per capture session.** Two Xsens exports can put the same bone on
+> different axes of its joint frame - in the two files here the upper arm is `-Z` in one and `+Y` in
+> the other, 90 degrees apart, while the legs agree. A config calibrated on one then puts the hands
+> nowhere near their targets on the other. If the arms look wrong on a new capture, re-derive the
+> offsets from that file, which takes about a minute:
+>
+> ```bash
+> python scripts/_calibrate_ik_offsets.py calibrate --robot limx_luna --src bvh_xsens \
+>   --motion_file <your.bvh> --config general_motion_retargeting/ik_configs/bvh_xsens_to_luna.json \
+>   --tune align          # solve rot_offset from each bone direction
+> python scripts/_calibrate_ik_offsets.py calibrate --robot limx_luna --src bvh_xsens \
+>   --motion_file <your.bvh> --config general_motion_retargeting/ik_configs/bvh_xsens_to_luna.json \
+>   --tune roll           # then the twist about each bone, which alignment leaves free
+> ```
+>
+> The shipped `bvh_xsens_to_{oli_edu,luna}.json` are calibrated on `data/Xsens/猫步-002.bvh`.
+> `--tune chain` (limb scales from bone lengths) and `--tune ground` (root scale for foot contact)
+> are the other two steps. `scripts/_recalibrate_limx.sh` preserves the fixed SMPL-X frame offsets
+> and only runs `align` / `roll` for BVH sources.
 
 ### Usage
 
@@ -42,7 +120,7 @@ python scripts/smplx_to_robot.py \
   --save_path output/lx_motion.npz
 ```
 
-**BVH (LAFAN1) → robot**:
+**BVH (LAFAN1 / Nokov / FZMotion / Noitom) → robot**:
 
 ```bash
 python scripts/bvh_to_robot.py \
@@ -52,12 +130,41 @@ python scripts/bvh_to_robot.py \
   --save_path output/lx_motion.npz
 ```
 
-**Visualize saved motion** (supports new `.npz` and legacy `.pkl`):
+**BVH (Xsens) → robot** — needs `--scale` to convert the file's units to metres:
+
+```bash
+python scripts/xsens_bvh_to_robot.py \
+  --bvh_file assets/xsens_bvh_test/251021_04_boxing_120Hz_cm_3DsMax.bvh \
+  --robot limx_luna --bvh_format 3DSM --scale 0.01 --reset_to_zero \
+  --save_path output/luna_boxing.npy
+```
+
+
+**Luna → luna-beyondmimic `.npy`** (schema below; `--save_path` extension picks the format):
+
+```bash
+python scripts/smplx_to_robot.py \
+  --smplx_file <path_to_smplx.npz_or.pkl> \
+  --robot limx_luna \
+  --save_path output/luna_motion.npy
+```
+
+Feed it straight into the trainer, which runs its own preparation pipeline:
+
+```bash
+# in the luna-beyondmimic checkout
+python scripts/rsl_rl/train.py \
+  --task=Tracking-Flat-HU-L04-Parallel-Deploy-Gravity-v0 \
+  --motion_file /path/to/luna_motion.npy \
+  --num_envs 4096 --headless
+```
+
+**Visualize saved motion** (`.npy`, `.npz` and legacy `.pkl` all load):
 
 ```bash
 python scripts/vis_robot_motion.py \
-  --robot limx_oli_edu \
-  --robot_motion_path output/lx_motion.npz
+  --robot limx_luna \
+  --robot_motion_path output/luna_motion.npy
 ```
 
 Add `--record_video --video_path videos/demo.mp4` to record video. Remove `--rate_limit` on retargeting scripts for maximum speed.
@@ -69,9 +176,32 @@ python scripts/batch_gmr_pkl_to_csv.py --folder output/
 # writes output/csv/*.csv
 ```
 
-### Robot Motion Data Format (BeyondMimic-aligned)
+### Robot Motion Data Formats
 
-When `--save_path` is set, `smplx_to_robot.py` and `bvh_to_robot.py` write a dict with these keys (via `general_motion_retargeting/motion_export.py`):
+`--save_path` picks the schema by file extension, both written by `general_motion_retargeting/motion_export.py`:
+
+| Extension | Schema | Consumer |
+| --- | --- | --- |
+| `.npy` | luna-beyondmimic | `prepare_motion.py` / `train.py` / `play.py` in [luna-beyondmimic](https://github.com/limx-luna/luna-beyondmimic) |
+| `.npz`, `.pkl` | BeyondMimic key layout | `scripts/vis_robot_motion.py`, `scripts/batch_gmr_pkl_to_csv.py` |
+
+Body positions and orientations are the MuJoCo body frame (`xpos` / `xquat`), and body velocities are taken at that same frame origin (`mj_objectVelocity` on `mjOBJ_XBODY`), so the velocities are the derivative of the exported positions.
+
+#### luna-beyondmimic `.npy`
+
+A pickled dict, loaded with `np.load(path, allow_pickle=True).item()`:
+
+| Key | Shape | Description |
+| --- | --- | --- |
+| `fps` | `int` | Frame rate |
+| `dof_names` | list of `N` | Joint names |
+| `body_names` | list of `B` | Body names (world body excluded) |
+| `dof_pos_vel` | `(T, N, 2)` | Joint position [rad] and velocity [rad/s] |
+| `body_states` | `(T, B, 13)` | `pos(3)` + `quat_xyzw(4)` + `lin_vel(3)` + `ang_vel(3)`, world frame |
+
+Quaternions are **xyzw** here, matching what `npy_to_npz.py` expects. For `limx_luna`: `N = 27`, `B = 37`. The consumer reorders both axes by name, so only the names have to agree — joint names exactly, body names as a subset of its articulation (the 14 linkage/helper bodies it adds are zero-filled).
+
+#### BeyondMimic `.npz` / `.pkl`
 
 | Key | Shape | Description |
 | --- | --- | --- |
@@ -87,8 +217,6 @@ When `--save_path` is set, `smplx_to_robot.py` and `bvh_to_robot.py` write a dic
 
 For `limx_oli_edu`: `N = 31`, `B = 42` (example after retargeting).
 
-**File extension:** `.npz` (recommended, matches BeyondMimic) or `.pkl` (same fields).
-
 **Load in Python:**
 
 ```python
@@ -97,8 +225,7 @@ motion = dict(np.load("output/lx_motion.npz", allow_pickle=True))
 print(motion["joint_pos"].shape, motion["fps"], list(motion["joint_names"][:3]))
 ```
 
-**`joint_pos` column order (`limx_oli_edu`, 31 joints):**  
-left leg (6) → right leg (6) → waist (3) → head (2) → left arm (7) → right arm (7), e.g. `left_hip_pitch_joint` … `right_wrist_roll_joint`.
+**Joint column order** follows the MuJoCo model, i.e. left leg → right leg → waist → head → left arm → right arm: 6/6/3/2/7/7 for `limx_oli_edu` (arm ends at `wrist_roll`), 6/6/3/2/5/5 for `limx_luna` (arm ends at `wrist_yaw`).
 
 **Legacy format** (older runs): `root_pos`, `root_rot` (xyzw), `dof_pos` — still readable by `load_robot_motion()` / visualization helpers.
 

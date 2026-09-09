@@ -1,0 +1,3 @@
+[submodule "assets/luna-description"]
+	path = assets/luna-description
+	url = git@github.com:limx-luna/luna-description.git

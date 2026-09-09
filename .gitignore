@@ -24,6 +24,8 @@ coverage.xml
 # IDEs
 .vscode/
 .idea/
+.claude/
+.cursor/
 *.swp
 *.swo
 *~
@@ -41,6 +43,8 @@ Thumbs.db
 data/
 data_record/
 Download/
+output/
+train_params/
 # body_models: only vendored SMPL-X .pkl are tracked (see assets/body_models/smplx/)
 assets/body_models/*
 !assets/body_models/smplx/
@@ -112,6 +116,8 @@ PythonClient/
 TEST_MOTIONS_MY.md
 
 tmp/
+
+openspec/
 
 motion_data/
 

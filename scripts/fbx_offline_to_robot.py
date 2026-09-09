@@ -3,6 +3,7 @@ import pathlib
 import time
 from general_motion_retargeting import GeneralMotionRetargeting as GMR
 from general_motion_retargeting import RobotMotionViewer
+from general_motion_retargeting.motion_export import describe_motion, save_robot_motion
 from rich import print
 from tqdm import tqdm
 import os
@@ -157,25 +158,13 @@ if __name__ == "__main__":
             qpos_list.append(qpos)
 
     if args.save_path is not None:
-        import pickle
-        root_pos = np.array([qpos[:3] for qpos in qpos_list])
-        # save from wxyz to xyzw
-        root_rot = np.array([qpos[3:7][[1,2,3,0]] for qpos in qpos_list])
-        dof_pos = np.array([qpos[7:] for qpos in qpos_list])
-        local_body_pos = None
-        body_names = None
-        
-        motion_data = {
-            "fps": motion_fps,
-            "root_pos": root_pos,
-            "root_rot": root_rot,
-            "dof_pos": dof_pos,
-            "local_body_pos": local_body_pos,
-            "link_body_list": body_names,
-        }
-        with open(args.save_path, "wb") as f:
-            pickle.dump(motion_data, f)
-        print(f"Saved to {args.save_path}")
+        motion_data = save_robot_motion(
+            args.save_path,
+            qpos_list,
+            motion_fps,
+            robot_type=args.robot,
+        )
+        print(f"Saved motion to {args.save_path} ({describe_motion(motion_data)})")
 
     # Close progress bar
     pbar.close()

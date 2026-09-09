@@ -3,7 +3,7 @@ import pathlib
 import time
 from general_motion_retargeting import GeneralMotionRetargeting as GMR
 from general_motion_retargeting import RobotMotionViewer
-from general_motion_retargeting.motion_export import save_robot_motion
+from general_motion_retargeting.motion_export import describe_motion, save_robot_motion
 from general_motion_retargeting.utils.lafan1 import load_bvh_file
 from rich import print
 from tqdm import tqdm
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     
     parser.add_argument(
         "--format",
-        choices=["lafan1", "nokov"],
+        choices=["lafan1", "nokov", "fzmotion", "noitom"],
         default="lafan1",
     )
     
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     
     parser.add_argument(
         "--robot",
-        choices=["unitree_g1", "unitree_g1_with_hands", "booster_t1", "stanford_toddy", "fourier_n1", "engineai_pm01", "pal_talos", "limx_oli_edu"],
+        choices=["unitree_g1", "unitree_g1_with_hands", "booster_t1", "stanford_toddy", "fourier_n1", "engineai_pm01", "pal_talos", "limx_oli_edu", "limx_luna"],
         default="unitree_g1",
     )
     
@@ -63,7 +63,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--save_path",
         default=None,
-        help="Path to save the robot motion.",
+        help="Path to save the robot motion. The extension selects the format: "
+             ".npy writes the luna-beyondmimic schema, .npz/.pkl the BeyondMimic one.",
     )
     
     parser.add_argument(
@@ -168,12 +169,7 @@ if __name__ == "__main__":
             motion_fps,
             robot_type=args.robot,
         )
-        print(
-            f"Saved BeyondMimic motion to {args.save_path} "
-            f"(T={motion_data['joint_pos'].shape[0]}, "
-            f"joints={motion_data['joint_pos'].shape[1]}, "
-            f"bodies={motion_data['body_pos_w'].shape[1]})"
-        )
+        print(f"Saved motion to {args.save_path} ({describe_motion(motion_data)})")
 
     # Close progress bar
     pbar.close()

@@ -36,7 +36,7 @@ if __name__ == "__main__":
     if not os.path.exists(robot_motion_folder):
         raise FileNotFoundError(f"Motion data dir {robot_motion_folder} does not exist.")
     
-    motion_files = [f for f in os.listdir(robot_motion_folder) if f.endswith(('.pkl', '.npz'))]
+    motion_files = [f for f in os.listdir(robot_motion_folder) if f.endswith(('.pkl', '.npz', '.npy'))]
     motion_files = sorted(motion_files)
     motion_num = len(motion_files)
     print(f"Found {motion_num} motion files in {robot_motion_folder}, loading...")

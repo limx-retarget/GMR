@@ -1,7 +1,7 @@
 import general_motion_retargeting.utils.lafan_vendor.utils as utils
 from general_motion_retargeting.utils.xsens_vendor.BVHParser import BVHParser, Anim
 import numpy as np
-from general_motion_retargeting.utils.xsens_vendor.bvh_edit.CurveEditor import (
+from general_motion_retargeting.utils.xsens_vendor.bvh_edit.offset_manager import (
     OffsetManager,
 )
 

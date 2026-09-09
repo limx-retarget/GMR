@@ -464,13 +464,6 @@ Motion: SFU_0017_0017_RunningOnBench002_stageii.pkl, Difficulty: 100.00
 Motion: SFU_0017_0017_RunningOnBench002_stageii.pkl, Difficulty: 100.00
 Motion: SFU_0017_0017_WushuKicks001_stageii.pkl, Difficulty: 100.00
 Motion: SFU_0018_0018_Bridge001_stageii.pkl, Difficulty: 100.00
-Motion: SOMA_soma_subject1_random_003_stageii.pkl, Difficulty: 26.47
-Motion: SOMA_soma_subject1_random_003_stageii.pkl, Difficulty: 100.00
-Motion: SOMA_soma_subject1_random_003_stageii.pkl, Difficulty: 100.00
-Motion: SOMA_soma_subject1_sit_003_stageii.pkl, Difficulty: 87.49
-Motion: SOMA_soma_subject1_sit_003_stageii.pkl, Difficulty: 90.15
-Motion: SOMA_soma_subject2_sit_003_stageii.pkl, Difficulty: 96.75
-Motion: SOMA_soma_subject2_sit_003_stageii.pkl, Difficulty: 97.59
 Motion: TotalCapture_s4_freestyle1_stageii.pkl, Difficulty: 68.98
 Motion: TotalCapture_s4_freestyle3_stageii.pkl, Difficulty: 24.20
 Motion: TotalCapture_s4_freestyle3_stageii.pkl, Difficulty: 97.62

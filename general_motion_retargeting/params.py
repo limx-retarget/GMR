@@ -1,8 +1,16 @@
+import os
 import pathlib
 
 HERE = pathlib.Path(__file__).parent
 IK_CONFIG_ROOT = HERE / "ik_configs"
 ASSET_ROOT = HERE / ".." / "assets"
+
+# LimX Luna (HU_L04) ships its description as the private `luna-description` submodule instead of
+# vendored files. LUNA_DESCRIPTION_DIR mirrors the variable luna-beyondmimic uses, so a checkout
+# living somewhere else can be reused without touching this file.
+LUNA_DESCRIPTION_DIR = pathlib.Path(
+    os.environ.get("LUNA_DESCRIPTION_DIR", ASSET_ROOT / "luna-description")
+)
 
 ROBOT_XML_DICT = {
     "unitree_g1": ASSET_ROOT / "unitree_g1" / "g1_mocap_29dof.xml",
@@ -24,6 +32,7 @@ ROBOT_XML_DICT = {
     "pal_talos": ASSET_ROOT / "pal_talos" / "talos.xml",
     "fourier_gr3": ASSET_ROOT / "fourier_gr3v2_1_1" / "mjcf" / "gr3v2_1_1_dummy_hand.xml",
     "limx_oli_edu": ASSET_ROOT / "limx_oli_edu" / "xml" / "HU_D04_01_vis.xml",
+    "limx_luna": LUNA_DESCRIPTION_DIR / "HU_L04_description" / "xml" / "HU_L04_01_vis.xml",
 }
 
 IK_CONFIG_DICT = {
@@ -47,6 +56,7 @@ IK_CONFIG_DICT = {
         "tienkung": IK_CONFIG_ROOT / "smplx_to_tienkung.json",
         "fourier_gr3": IK_CONFIG_ROOT / "smplx_to_gr3.json",
         "limx_oli_edu": IK_CONFIG_ROOT / "smplx_to_oli_edu.json",
+        "limx_luna": IK_CONFIG_ROOT / "smplx_to_luna.json",
     },
     "bvh_lafan1":{
         "unitree_g1": IK_CONFIG_ROOT / "bvh_lafan1_to_g1.json",
@@ -57,13 +67,26 @@ IK_CONFIG_DICT = {
         "engineai_pm01": IK_CONFIG_ROOT / "bvh_lafan1_to_pm01.json",
         "pal_talos": IK_CONFIG_ROOT / "bvh_to_talos.json",
         "limx_oli_edu": IK_CONFIG_ROOT / "bvh_lafan1_to_oli_edu.json",
+        "limx_luna": IK_CONFIG_ROOT / "bvh_lafan1_to_luna.json",
     },
     "bvh_nokov":{
         "unitree_g1": IK_CONFIG_ROOT / "bvh_nokov_to_g1.json",
+        "limx_oli_edu": IK_CONFIG_ROOT / "bvh_nokov_to_oli_edu.json",
+        "limx_luna": IK_CONFIG_ROOT / "bvh_nokov_to_luna.json",
     },
     "bvh_xsens":{
         "unitree_g1": IK_CONFIG_ROOT / "bvh_xsens_to_g1.json",
         "unitree_h1_2": IK_CONFIG_ROOT / "bvh_xsens_to_h1_2.json",
+        "limx_oli_edu": IK_CONFIG_ROOT / "bvh_xsens_to_oli_edu.json",
+        "limx_luna": IK_CONFIG_ROOT / "bvh_xsens_to_luna.json",
+    },
+    "bvh_fzmotion":{
+        "limx_oli_edu": IK_CONFIG_ROOT / "bvh_fzmotion_to_oli_edu.json",
+        "limx_luna": IK_CONFIG_ROOT / "bvh_fzmotion_to_luna.json",
+    },
+    "bvh_noitom":{
+        "limx_oli_edu": IK_CONFIG_ROOT / "bvh_noitom_to_oli_edu.json",
+        "limx_luna": IK_CONFIG_ROOT / "bvh_noitom_to_luna.json",
     },
     "fbx":{
         "unitree_g1": IK_CONFIG_ROOT / "fbx_to_g1.json",
@@ -102,6 +125,7 @@ ROBOT_BASE_DICT = {
     "pal_talos": "base_link",
     "fourier_gr3": "base_link",
     "limx_oli_edu": "base_link",
+    "limx_luna": "base_link",
 }
 
 VIEWER_CAM_DISTANCE_DICT = {
@@ -124,4 +148,39 @@ VIEWER_CAM_DISTANCE_DICT = {
     "pal_talos": 3.0,
     "fourier_gr3": 2.0,
     "limx_oli_edu": 2.0,
+    "limx_luna": 2.0,
 }
+
+# Robots whose description is not vendored in this repository. The hint is shown when the model
+# file is missing, which otherwise surfaces as an opaque mujoco parse error.
+SUBMODULE_ROBOT_HINTS = {
+    "limx_luna": (
+        "The LimX Luna (HU_L04) description is the private `luna-description` submodule and is not "
+        "part of a plain checkout. Fetch it with:\n\n"
+        "    git submodule update --init assets/luna-description\n\n"
+        "Or point LUNA_DESCRIPTION_DIR at an existing copy of luna-description "
+        "(the directory containing HU_L04_description/)."
+    ),
+}
+
+# Alternative layouts of a description package, tried when the registered path is absent.
+_MJCF_SUBDIRS = ("xml", "mjcf")
+
+
+def resolve_robot_xml(robot_type: str) -> str:
+    """Return the MuJoCo XML path for ``robot_type``, failing where the cause is still visible."""
+    xml_path = pathlib.Path(ROBOT_XML_DICT[robot_type])
+    if xml_path.exists():
+        return str(xml_path)
+
+    # A vendor package may keep its MJCF under a differently named directory.
+    for subdir in _MJCF_SUBDIRS:
+        candidate = xml_path.parent.parent / subdir / xml_path.name
+        if candidate.exists():
+            return str(candidate)
+
+    message = f"Robot model {xml_path} does not exist."
+    hint = SUBMODULE_ROBOT_HINTS.get(robot_type)
+    if hint:
+        message = f"{message}\n{hint}"
+    raise FileNotFoundError(message)

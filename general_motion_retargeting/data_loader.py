@@ -3,24 +3,40 @@ import pickle
 
 import numpy as np
 
-from .motion_export import beyondmimic_to_legacy_view, is_beyondmimic_motion
+from .motion_export import (
+    beyondmimic_to_legacy_view,
+    is_beyondmimic_motion,
+    is_luna_npy_motion,
+    luna_npy_to_legacy_view,
+)
 
 
 def load_robot_motion(motion_file):
     """
-    Load robot motion data from a pickle or npz file.
+    Load robot motion data from a pickle, npz or npy file.
 
     Supports:
+    - luna-beyondmimic format: body_states, dof_pos_vel, dof_names, body_names, fps
     - BeyondMimic format: joint_pos, body_pos_w, body_quat_w (wxyz), ...
     - Legacy GMR format: root_pos, root_rot (xyzw), dof_pos
     """
-    if str(motion_file).endswith(".npz"):
+    if str(motion_file).endswith(".npy"):
+        motion_data = np.load(motion_file, allow_pickle=True).item()
+    elif str(motion_file).endswith(".npz"):
         motion_data = dict(np.load(motion_file, allow_pickle=True))
     else:
         with open(motion_file, "rb") as f:
             motion_data = pickle.load(f)
 
-    if is_beyondmimic_motion(motion_data):
+    if is_luna_npy_motion(motion_data):
+        motion_fps = float(motion_data["fps"])
+        motion_dof_pos = np.asarray(motion_data["dof_pos_vel"])[:, :, 0]
+        motion_local_body_pos = None
+        motion_link_body_list = list(motion_data["body_names"])
+        # root fields filled by luna_npy_to_legacy_view when robot_type is known
+        motion_root_pos = None
+        motion_root_rot = None
+    elif is_beyondmimic_motion(motion_data):
         motion_fps = float(np.asarray(motion_data["fps"]).reshape(-1)[0])
         motion_dof_pos = np.asarray(motion_data["joint_pos"])
         motion_local_body_pos = None
@@ -59,7 +75,11 @@ def load_robot_motion_for_viewer(motion_file, robot_type):
         motion_link_body_list,
     ) = load_robot_motion(motion_file)
 
-    if is_beyondmimic_motion(motion_data):
+    if is_luna_npy_motion(motion_data):
+        motion_fps, motion_root_pos, motion_root_rot, motion_dof_pos = luna_npy_to_legacy_view(
+            motion_data, robot_type
+        )
+    elif is_beyondmimic_motion(motion_data):
         motion_fps, motion_root_pos, motion_root_rot, motion_dof_pos = beyondmimic_to_legacy_view(
             motion_data, robot_type
         )

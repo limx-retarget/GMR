@@ -4,8 +4,18 @@ import mujoco as mj
 import numpy as np
 import json
 from scipy.spatial.transform import Rotation as R
-from .params import ROBOT_XML_DICT, IK_CONFIG_DICT
+from .params import IK_CONFIG_DICT, resolve_robot_xml
 from rich import print
+
+
+def human_height_scale_ratio(ik_config, actual_human_height):
+    if actual_human_height is None:
+        return 1.0
+    assumed_height = ik_config["human_height_assumption"]
+    if ik_config.get("normalize_human_height", False):
+        return assumed_height / actual_human_height
+    return actual_human_height / assumed_height
+
 
 class GeneralMotionRetargeting:
     """General Motion Retargeting (GMR).
@@ -51,7 +61,7 @@ class GeneralMotionRetargeting:
 
         self.tgt_robot = tgt_robot
         # load the robot model
-        self.xml_file = str(ROBOT_XML_DICT[tgt_robot])
+        self.xml_file = resolve_robot_xml(tgt_robot)
         if verbose:
             print("Use robot model: ", self.xml_file)
         self.model = mj.MjModel.from_xml_path(self.xml_file)
@@ -89,10 +99,7 @@ class GeneralMotionRetargeting:
             print("Use IK config: ", IK_CONFIG_DICT[src_human][tgt_robot])
         
         # compute the scale ratio based on given human height and the assumption in the IK config
-        if actual_human_height is not None:
-            ratio = actual_human_height / ik_config["human_height_assumption"]
-        else:
-            ratio = 1.0
+        ratio = human_height_scale_ratio(ik_config, actual_human_height)
             
         # adjust the human scale table
         for key in ik_config["human_scale_table"].keys():
@@ -104,6 +111,8 @@ class GeneralMotionRetargeting:
         self.ik_match_table2 = ik_config["ik_match_table2"]
         self.human_root_name = ik_config["human_root_name"]
         self.robot_root_name = ik_config["robot_root_name"]
+        self.normalize_root_position = ik_config.get("normalize_root_position", False)
+        self._initial_root_xy = None
         self.use_ik_match_table1 = ik_config["use_ik_match_table1"]
         self.use_ik_match_table2 = ik_config["use_ik_match_table2"]
         self.human_scale_table = ik_config["human_scale_table"]
@@ -229,6 +238,10 @@ class GeneralMotionRetargeting:
         
         for frame_name, entry in self.ik_match_table1.items():
             body_name, pos_weight, rot_weight, pos_offset, rot_offset = entry
+            self.pos_offsets1[body_name] = np.array(pos_offset) - self.ground
+            self.rot_offsets1[body_name] = R.from_quat(
+                rot_offset, scalar_first=True
+            )
             if pos_weight != 0 or rot_weight != 0:
                 task = mink.FrameTask(
                     frame_name=frame_name,
@@ -238,15 +251,15 @@ class GeneralMotionRetargeting:
                     lm_damping=1,
                 )
                 self.human_body_to_task1[body_name] = task
-                self.pos_offsets1[body_name] = np.array(pos_offset) - self.ground
-                self.rot_offsets1[body_name] = R.from_quat(
-                    rot_offset, scalar_first=True
-                )
                 self.tasks1.append(task)
                 self.task_errors1[task] = []
         
         for frame_name, entry in self.ik_match_table2.items():
             body_name, pos_weight, rot_weight, pos_offset, rot_offset = entry
+            self.pos_offsets2[body_name] = np.array(pos_offset) - self.ground
+            self.rot_offsets2[body_name] = R.from_quat(
+                rot_offset, scalar_first=True
+            )
             if pos_weight != 0 or rot_weight != 0:
                 task = mink.FrameTask(
                     frame_name=frame_name,
@@ -256,10 +269,6 @@ class GeneralMotionRetargeting:
                     lm_damping=1,
                 )
                 self.human_body_to_task2[body_name] = task
-                self.pos_offsets2[body_name] = np.array(pos_offset) - self.ground
-                self.rot_offsets2[body_name] = R.from_quat(
-                    rot_offset, scalar_first=True
-                )
                 self.tasks2.append(task)
                 self.task_errors2[task] = []
 
@@ -267,6 +276,8 @@ class GeneralMotionRetargeting:
     def update_targets(self, human_data, offset_to_ground=False):
         # scale human data in local frame
         human_data = self.to_numpy(human_data)
+        if self.normalize_root_position:
+            human_data = self.zero_initial_root_xy(human_data, self.human_root_name)
         human_data = self.scale_human_data(human_data, self.human_root_name, self.human_scale_table)
         human_data = self.offset_human_data(human_data, self.pos_offsets1, self.rot_offsets1)
         human_data = self.apply_ground_offset(human_data)
@@ -384,6 +395,15 @@ class GeneralMotionRetargeting:
             human_data_global[body_name] = (human_data_local[body_name] + scaled_root_pos, human_data[body_name][1])
 
         return human_data_global
+
+    def zero_initial_root_xy(self, human_data, human_root_name):
+        if self._initial_root_xy is None:
+            self._initial_root_xy = np.asarray(human_data[human_root_name][0]).copy()
+            self._initial_root_xy[2] = 0.0
+        return {
+            body_name: (np.asarray(pose[0]) - self._initial_root_xy, pose[1])
+            for body_name, pose in human_data.items()
+        }
     
     def offset_human_data(self, human_data, pos_offsets, rot_offsets):
         """the pos offsets are applied in the local frame"""

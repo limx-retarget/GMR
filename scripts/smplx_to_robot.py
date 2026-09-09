@@ -7,7 +7,7 @@ import numpy as np
 
 from general_motion_retargeting import GeneralMotionRetargeting as GMR
 from general_motion_retargeting import RobotMotionViewer
-from general_motion_retargeting.motion_export import save_robot_motion
+from general_motion_retargeting.motion_export import describe_motion, save_robot_motion
 from general_motion_retargeting.utils.smpl import load_smplx_file, get_smplx_data_offline_fast
 
 from rich import print
@@ -34,14 +34,16 @@ if __name__ == "__main__":
         choices=["unitree_g1", "unitree_g1_with_hands", "unitree_h1", "unitree_h1_2",
                  "booster_t1", "booster_t1_29dof","stanford_toddy", "fourier_n1", 
                 "engineai_pm01", "kuavo_s45", "hightorque_hi", "galaxea_r1pro", "berkeley_humanoid_lite", "booster_k1",
-                "pnd_adam_lite", "openloong", "tienkung", "fourier_gr3", "limx_oli_edu"],
+                "pnd_adam_lite", "openloong", "tienkung", "fourier_gr3", "limx_oli_edu",
+                "limx_luna"],
         default="unitree_g1",
     )
     
     parser.add_argument(
         "--save_path",
         default=None,
-        help="Path to save the robot motion.",
+        help="Path to save the robot motion. The extension selects the format: "
+             ".npy writes the luna-beyondmimic schema, .npz/.pkl the BeyondMimic one.",
     )
     
     parser.add_argument(
@@ -155,12 +157,7 @@ if __name__ == "__main__":
             aligned_fps,
             robot_type=args.robot,
         )
-        print(
-            f"Saved BeyondMimic motion to {args.save_path} "
-            f"(T={motion_data['joint_pos'].shape[0]}, "
-            f"joints={motion_data['joint_pos'].shape[1]}, "
-            f"bodies={motion_data['body_pos_w'].shape[1]})"
-        )
+        print(f"Saved motion to {args.save_path} ({describe_motion(motion_data)})")
             
       
     
