@@ -439,9 +439,9 @@ conda install -c conda-forge libstdcxx-ng -y
 
 [[SMPLX](https://github.com/vchoutas/smplx) body model] **not bundled** — download from the [SMPL-X website](https://smpl-x.is.tue.mpg.de/) (registration required) and place the `.pkl` files in `assets/body_models/smplx/`. Comply with the [SMPL-X license](https://smpl-x.is.tue.mpg.de/).
 
-[[AMASS](https://amass.is.tue.mpg.de/) motion data] download raw SMPL-X data to any folder you want from [AMASS](https://amass.is.tue.mpg.de/). NOTE: Do not download SMPL+H data.
+[[AMASS](https://amass.is.tue.mpg.de/) motion data] download raw SMPL-X data to any folder you want from [AMASS](https://amass.is.tue.mpg.de/). AMASS requires **free registration** and is distributed under its own **non-commercial dataset license** (see the [AMASS site](https://amass.is.tue.mpg.de/)) — comply with it before use. NOTE: Do not download SMPL+H data.
 
-[[OMOMO](https://github.com/lijiaman/omomo_release) motion data] download raw OMOMO data to any folder you want from [this google drive file](https://drive.google.com/file/d/1tZVqLB7II0whI-Qjz-z-AU3ponSEyAmm/view?usp=sharing). And process the data into the SMPL-X format using `scripts/convert_omomo_to_smplx.py`.
+[[OMOMO](https://github.com/lijiaman/omomo_release) motion data] download raw OMOMO data to any folder you want from [this google drive file](https://drive.google.com/file/d/1tZVqLB7II0whI-Qjz-z-AU3ponSEyAmm/view?usp=sharing) (hosted by the OMOMO project, whose repo is [MIT-licensed](https://github.com/lijiaman/omomo_release); the drive link may require requesting access). And process the data into the SMPL-X format using `scripts/convert_omomo_to_smplx.py`.
 
 [[LAFAN1](https://github.com/ubisoft/ubisoft-laforge-animation-dataset) motion data] download raw LAFAN1 bvh files from [the official repo](https://github.com/ubisoft/ubisoft-laforge-animation-dataset), i.e., [lafan1.zip](https://github.com/ubisoft/ubisoft-laforge-animation-dataset/blob/master/lafan1/lafan1.zip).
 
