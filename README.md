@@ -13,9 +13,7 @@ pip install -e .
 conda install -c conda-forge libstdcxx-ng -y
 ```
 
-**SMPL-X body models** — **included in this repo** under `assets/body_models/smplx/` (`SMPLX_NEUTRAL.pkl`, `SMPLX_FEMALE.pkl`, `SMPLX_MALE.pkl`). After clone, install [Git LFS](https://git-lfs.com/) and run `git lfs pull` if the `.pkl` files are pointer stubs.
-
-No manual download from the SMPL-X website is required for retargeting. Models remain under the [SMPL-X license](https://smpl-x.is.tue.mpg.de/); see `assets/body_models/smplx/README.md`.
+**SMPL-X body models** — **not bundled** in this repo. Because the models are distributed under the non-commercial [SMPL-X license](https://smpl-x.is.tue.mpg.de/), download them yourself from the [SMPL-X website](https://smpl-x.is.tue.mpg.de/) and place `SMPLX_NEUTRAL.pkl`, `SMPLX_MALE.pkl`, and `SMPLX_FEMALE.pkl` into `assets/body_models/smplx/`. See `assets/body_models/smplx/README.md`.
 
 Loading uses `ext="pkl"` in `general_motion_retargeting/utils/smpl.py` (not a `site_packages` patch).
 
@@ -429,7 +427,7 @@ Then, install GMR:
 pip install -e .
 ```
 
-SMPL-X body models (`.pkl`) are **bundled** in `assets/body_models/smplx/`; use `git lfs pull` after clone. No `site_packages` edit is required (`utils/smpl.py` passes `ext="pkl"`).
+SMPL-X body models (`.pkl`) are **not bundled**; download them from the [SMPL-X website](https://smpl-x.is.tue.mpg.de/) and place them in `assets/body_models/smplx/`. No `site_packages` edit is required (`utils/smpl.py` passes `ext="pkl"`).
 
 And to resolve some possible rendering issues:
 
@@ -439,7 +437,7 @@ conda install -c conda-forge libstdcxx-ng -y
 
 ## Data Preparation
 
-[[SMPLX](https://github.com/vchoutas/smplx) body model] **included** in `assets/body_models/smplx/` (Git LFS). See Quick Start above; comply with the [SMPL-X license](https://smpl-x.is.tue.mpg.de/).
+[[SMPLX](https://github.com/vchoutas/smplx) body model] **not bundled** — download from the [SMPL-X website](https://smpl-x.is.tue.mpg.de/) (registration required) and place the `.pkl` files in `assets/body_models/smplx/`. Comply with the [SMPL-X license](https://smpl-x.is.tue.mpg.de/).
 
 [[AMASS](https://amass.is.tue.mpg.de/) motion data] download raw SMPL-X data to any folder you want from [AMASS](https://amass.is.tue.mpg.de/). NOTE: Do not download SMPL+H data.
 

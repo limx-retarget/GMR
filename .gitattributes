@@ -1,3 +1,0 @@
-assets/body_models/smplx/SMPLX_NEUTRAL.pkl filter=lfs diff=lfs merge=lfs -text
-assets/body_models/smplx/SMPLX_FEMALE.pkl filter=lfs diff=lfs merge=lfs -text
-assets/body_models/smplx/SMPLX_MALE.pkl filter=lfs diff=lfs merge=lfs -text
