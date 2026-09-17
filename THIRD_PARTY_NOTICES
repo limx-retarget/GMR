@@ -1,0 +1,62 @@
+# THIRD_PARTY_NOTICES
+
+This repository vendors the following third-party robot model assets under
+`assets/`. Each asset directory contains the full text of its license
+(`assets/<robot>/LICENSE`). For convenience, the copyright and license terms
+are summarized below.
+
+===============================================================================
+unitree_g1
+===============================================================================
+License:    BSD-3-Clause
+Copyright: Copyright (c) 2016-2022 HangZhou YuShu TECHNOLOGY CO.,LTD. ("Unitree Robotics")
+Source:    https://github.com/unitreerobotics/unitree_ros
+
+===============================================================================
+unitree_h1
+===============================================================================
+License:    BSD-3-Clause
+Copyright: Copyright (c) 2016-2022 HangZhou YuShu TECHNOLOGY CO.,LTD. ("Unitree Robotics")
+Source:    https://github.com/unitreerobotics/unitree_ros
+
+===============================================================================
+engineai_pm01
+===============================================================================
+License:    BSD-3-Clause
+Copyright: Copyright (c) 2025- Shenzhen Zhongqing Robot Technology Co., Ltd. ("EngineAI")
+Source:    https://github.com/engineai-robotics/engineai_ros2_workspace
+
+===============================================================================
+fourier_n1
+===============================================================================
+License:    Apache-2.0
+Copyright: Copyright (c) Fourier
+Source:    https://github.com/FFTAI/Wiki-GRx-Models
+
+===============================================================================
+pal_talos
+===============================================================================
+License:    Apache-2.0
+Copyright: Copyright (c) PAL Robotics
+Source:    PAL Robotics — TALOS humanoid robot description
+
+===============================================================================
+pnd_adam_lite
+===============================================================================
+License:    MIT
+Copyright: Copyright (c) 2023 pndrobotics
+Source:    PNDbotics — https://www.pndbotics.com
+
+===============================================================================
+stanford_toddy
+===============================================================================
+License:    MIT
+Copyright: Copyright (c) 2023 Haochen Shi
+Source:    https://github.com/hshi74/toddlerbot
+
+===============================================================================
+booster_t1_29dof
+===============================================================================
+License:    Apache-2.0
+Copyright: Copyright (c) 2024 Booster Robotics Technology Co., Ltd ("Booster Robotics")
+Source:    Booster Robotics — https://github.com/BoosterRobotics
