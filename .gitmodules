@@ -1,3 +1,6 @@
 [submodule "assets/luna-description"]
 	path = assets/luna-description
 	url = https://github.com/limxdynamics/luna-description.git
+[submodule "assets/humanoid-description"]
+	path = assets/humanoid-description
+	url = https://github.com/limxdynamics/humanoid-description.git

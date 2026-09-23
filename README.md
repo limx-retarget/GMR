@@ -17,7 +17,13 @@ conda install -c conda-forge libstdcxx-ng -y
 
 Loading uses `ext="pkl"` in `general_motion_retargeting/utils/smpl.py` (not a `site_packages` patch).
 
-**Robot assets** — LimX OLI EDU is vendored under `assets/limx_oli_edu/`. LimX Luna is **not** vendored: its description is the private `luna-description` submodule, fetched separately (see below).
+**Robot assets** — neither LimX description is vendored. OLI EDU comes from the public
+[`humanoid-description`](https://github.com/limxdynamics/humanoid-description) submodule; Luna
+comes from the private `luna-description` submodule. Fetch both after cloning:
+
+```bash
+git submodule update --init --recursive
+```
 
 ### LimX OLI EDU (`limx_oli_edu`)
 
@@ -26,7 +32,7 @@ Loading uses `ext="pkl"` in `general_motion_retargeting/utils/smpl.py` (not a `s
 | Robot key | `limx_oli_edu` |
 | DoF | 31 series joints (12 leg + 3 waist + 2 head + 14 arm) |
 | Base body | `base_link` |
-| MuJoCo XML | `assets/limx_oli_edu/xml/HU_D04_01_vis.xml` (pure serial, no parallel-mechanism filtering) |
+| MuJoCo XML | `assets/humanoid-description/HU_D04_description/xml/HU_D04_01_vis.xml` (public submodule; pure serial) |
 | IK configs | `{smplx,bvh_lafan1,bvh_nokov,bvh_xsens,bvh_fzmotion,bvh_noitom}_to_oli_edu.json` |
 
 ### LimX Luna / HU_L04 (`limx_luna`)
@@ -45,7 +51,7 @@ Each arm ends at `wrist_yaw` (5 DoF per arm, no wrist pitch/roll), so IK targets
 Luna targets are normalized to the configured 1.8 m reference skeleton, and the first frame's root
 XY position is moved to the origin. Root Z and the subsequent XY trajectory are preserved.
 
-**Fetch the description** (private repository, requires access):
+**Fetch only the Luna description** (private repository, requires access):
 
 ```bash
 git submodule update --init assets/luna-description
@@ -279,7 +285,6 @@ This repo is licensed under the [MIT License](LICENSE).
 - **2025-09-12:** GMR now supports [Tienkung](https://github.com/Open-X-Humanoid/TienKung-Lab), the 14th humanoid robot in the repo.
 - **2025-08-30:** GMR now supports [Unitree H1 2](https://www.unitree.com/cn/h1) and [PND Adam Lite](https://pndbotics.com/), the 12th and 13th humanoid robots in the repo.
 - **2025-08-28:** GMR now supports [Booster T1](https://www.boosterobotics.com/) for both 23dof and 29dof.
-- **2025-08-28:** GMR now supports using exported offline FBX motion data from [OptiTrack](https://www.optitrack.com/). 
 - **2025-08-27:** GMR now supports [Berkeley Humanoid Lite](https://github.com/HybridRobotics/Berkeley-Humanoid-Lite-Assets), the 11th humanoid robot in the repo.
 - **2025-08-24:** GMR now supports [Unitree H1](https://www.unitree.com/h1/), the 10th humanoid robot in the repo.
 - **2025-08-24:** GMR now supports velocity limits for the robot motors, `use_velocity_limit=True` by default in `GeneralMotionRetargeting` class (and we use 3*pi as the velocity limit by default); we also add printing of robot DoF/Body/Motor names and their IDs by default, and you can access them via `robot_dof_names`, `robot_body_names`, and `robot_motor_names` attributes.
@@ -704,35 +709,7 @@ conda activate gmr
 python scripts/xsens_live_streaming.py
 ```
 
-### Retargeting from FBX (OptiTrack) to Robot
-
-#### Offline FBX Files
-
-Retarget a single motion:
-
-1. Install `fbx_sdk` by following [these instructions](https://github.com/nv-tlabs/ASE/tree/main/ase/poselib#importing-from-fbx) and [these instructions](https://github.com/nv-tlabs/ASE/issues/61#issuecomment-2670315114). You will probably need a new conda environment for this.
-
-2. Activate the conda environment where you installed `fbx_sdk`.
-Use the following command to extract motion data from your `.fbx` file:
-
-```bash
-cd third_party
-python poselib/fbx_importer.py --input <path_to_fbx_file.fbx> --output <path_to_save_motion_data.pkl> --root-joint <root_joint_name> --fps <fps>
-```
-
-3. Then, run the command below to retarget the extracted motion data to your robot:
-
-```bash
-conda activate gmr
-# single motion
-python scripts/fbx_offline_to_robot.py --motion_file <path_to_saved_motion_data.pkl> --robot <path_to_robot_data> --save_path <path_to_save_robot_data.pkl> --rate_limit
-```
-
-By default you should see the visualization of the retargeted robot motion in a mujoco window. 
-
-- `--rate_limit` is used to limit the rate of the retargeted robot motion to keep the same as the human motion. If you want it as fast as possible, remove `--rate_limit`.
-
-#### Online Streaming
+### OptiTrack Online Streaming
 
 We provide the script to use OptiTrack MoCap data for real-time streaming and retargeting.
 

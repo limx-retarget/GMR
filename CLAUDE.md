@@ -41,7 +41,7 @@ Core robot models in `assets/` directory:
 - Kuavo S45 (`kuavo_s45`) - 28 DOF humanoid
 - HighTorque Hi (`hightorque_hi`) - 25 DOF humanoid
 - Galaxea R1 Pro (`galaxea_r1pro`) - 24 DOF wheeled humanoid
-- LimX OLI EDU (`limx_oli_edu`) - 31 series DOF (12 leg + 3 waist + 2 head + 14 arm). Vendored under `assets/limx_oli_edu/`; the EDU visualization XML is already pure-serial, so no `frozen_joints` are needed.
+- LimX OLI EDU (`limx_oli_edu`) - 31 series DOF (12 leg + 3 waist + 2 head + 14 arm). The model comes from the public `humanoid-description` submodule at `assets/humanoid-description/`, or a checkout pointed to by `HUMANOID_DESCRIPTION_DIR`. Its `HU_D04_01_vis.xml` is pure-serial, so no `frozen_joints` are needed.
 - LimX Luna / HU_L04 (`limx_luna`) - 27 series DOF (12 leg + 3 waist + 2 head + 10 arm; each arm ends at `wrist_yaw`). The description is **not vendored**: it comes from the private `luna-description` submodule at `assets/luna-description/`, or a checkout pointed to by `LUNA_DESCRIPTION_DIR`. Retargeted motions feed [luna-beyondmimic](https://github.com/limx-luna/luna-beyondmimic) via the `.npy` export.
 
 Additional models retained in ROBOT_BASE_DICT for compatibility:
@@ -93,7 +93,8 @@ Add `--record_video --video_path <output.mp4>` to any visualization command to r
 - `general_motion_retargeting/ik_configs/`: JSON configuration files for human-to-robot body mappings:
   - SMPL-X configs: `smplx_to_{g1,t1,k1,toddy,n1,pm01,kuavo,hi,r1pro,oli_edu,luna}.json`
   - BVH configs: `bvh_{lafan1,nokov,xsens,fzmotion,noitom}_to_{...}.json`
-  - FBX configs: `fbx_to_g1.json`, `fbx_offline_to_g1.json` (OptiTrack is G1-only)
+  - Real-time OptiTrack uses `fbx_to_g1.json`. Offline FBX/PoseLib support was removed because
+    the vendored NVIDIA ASE PoseLib is restricted to non-commercial use.
   - Both LimX robots support SMPL-X and BVH (LAFAN1 / Nokov / Xsens / FZMotion / Noitom).
   - **FZMotion / Noitom follow agmr's loading conventions**, which differ from LAFAN1/Nokov:
     the Y-up-to-Z-up matrix is `[[0,0,1],[1,0,0],[0,1,0]]` (90 degrees of yaw away from the legacy
@@ -118,7 +119,7 @@ Add `--record_video --video_path <output.mp4>` to any visualization command to r
 **Current State**: Production-ready motion retargeting system with extensive robot support
 
 **Key Capabilities**:
-- **Multi-format Input**: SMPL-X (AMASS/OMOMO), BVH (LAFAN1), FBX (OptiTrack)
+- **Multi-format Input**: SMPL-X (AMASS/OMOMO), BVH variants, and real-time OptiTrack streaming
 - **Real-time Performance**: 60-70 FPS on high-end hardware for teleoperation
 - **9 Robot Models**: From research platforms to commercial humanoids
 - **Robust IK**: Mink-based solver with automatic human height scaling

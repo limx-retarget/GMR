@@ -11,6 +11,9 @@ ASSET_ROOT = HERE / ".." / "assets"
 LUNA_DESCRIPTION_DIR = pathlib.Path(
     os.environ.get("LUNA_DESCRIPTION_DIR", ASSET_ROOT / "luna-description")
 )
+HUMANOID_DESCRIPTION_DIR = pathlib.Path(
+    os.environ.get("HUMANOID_DESCRIPTION_DIR", ASSET_ROOT / "humanoid-description")
+)
 
 ROBOT_XML_DICT = {
     "unitree_g1": ASSET_ROOT / "unitree_g1" / "g1_mocap_29dof.xml",
@@ -31,7 +34,7 @@ ROBOT_XML_DICT = {
     "tienkung": ASSET_ROOT / "tienkung" / "mjcf" / "tienkung.xml",
     "pal_talos": ASSET_ROOT / "pal_talos" / "talos.xml",
     "fourier_gr3": ASSET_ROOT / "fourier_gr3v2_1_1" / "mjcf" / "gr3v2_1_1_dummy_hand.xml",
-    "limx_oli_edu": ASSET_ROOT / "limx_oli_edu" / "xml" / "HU_D04_01_vis.xml",
+    "limx_oli_edu": HUMANOID_DESCRIPTION_DIR / "HU_D04_description" / "xml" / "HU_D04_01_vis.xml",
     "limx_luna": LUNA_DESCRIPTION_DIR / "HU_L04_description" / "xml" / "HU_L04_01_vis.xml",
 }
 
@@ -92,10 +95,6 @@ IK_CONFIG_DICT = {
         "unitree_g1": IK_CONFIG_ROOT / "fbx_to_g1.json",
         "unitree_g1_with_hands": IK_CONFIG_ROOT / "fbx_to_g1.json",
     },
-    "fbx_offline":{
-        "unitree_g1": IK_CONFIG_ROOT / "fbx_offline_to_g1.json",
-    },
-    
     "xrobot":{
         "unitree_g1": IK_CONFIG_ROOT / "xrobot_to_g1.json",
     },
@@ -154,6 +153,13 @@ VIEWER_CAM_DISTANCE_DICT = {
 # Robots whose description is not vendored in this repository. The hint is shown when the model
 # file is missing, which otherwise surfaces as an opaque mujoco parse error.
 SUBMODULE_ROBOT_HINTS = {
+    "limx_oli_edu": (
+        "The LimX OLI EDU (HU_D04) description comes from the public `humanoid-description` "
+        "submodule. Fetch it with:\n\n"
+        "    git submodule update --init assets/humanoid-description\n\n"
+        "Or point HUMANOID_DESCRIPTION_DIR at an existing copy of humanoid-description "
+        "(the directory containing HU_D04_description/)."
+    ),
     "limx_luna": (
         "The LimX Luna (HU_L04) description is the private `luna-description` submodule and is not "
         "part of a plain checkout. Fetch it with:\n\n"
