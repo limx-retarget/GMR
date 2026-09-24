@@ -23,7 +23,7 @@ conda install -c conda-forge libstdcxx-ng -y
 
 加载是通过 `general_motion_retargeting/utils/smpl.py` 中的 `ext="pkl"` 完成的（无需改动 `site_packages`）。
 
-**机器人资产** —— 两款 LimX 的 description 均未随仓库内置。OLI EDU 来自公开的 [`humanoid-description`](https://github.com/limxdynamics/humanoid-description) 子模块；Luna 来自私有 `luna-description` 子模块。克隆后请拉取两个子模块：
+**机器人资产** —— 两款 LimX 的 description 均未随仓库内置。OLI EDU 来自公开的 [`humanoid-description`](https://github.com/limxdynamics/humanoid-description) 子模块；Luna 来自公开的 [`luna-description`](https://github.com/limxdynamics/luna-description) 子模块。克隆后请拉取两个子模块：
 
 ```bash
 git submodule update --init --recursive
@@ -54,7 +54,7 @@ git submodule update --init --recursive
 
 Luna 目标已归一化到配置的 1.8 m 参考骨架，且首帧的根节点 XY 位置被移到原点。根节点 Z 及后续 XY 轨迹保持不变。
 
-**仅拉取 Luna description**（私有仓库，需要访问权限）：
+**仅拉取 Luna description**（公开仓库）：
 
 ```bash
 git submodule update --init assets/luna-description

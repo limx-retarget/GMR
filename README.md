@@ -25,7 +25,7 @@ Loading uses `ext="pkl"` in `general_motion_retargeting/utils/smpl.py` (not a `s
 
 **Robot assets** — neither LimX description is vendored. OLI EDU comes from the public
 [`humanoid-description`](https://github.com/limxdynamics/humanoid-description) submodule; Luna
-comes from the private `luna-description` submodule. Fetch both after cloning:
+comes from the public [`luna-description`](https://github.com/limxdynamics/luna-description) submodule. Fetch both after cloning:
 
 ```bash
 git submodule update --init --recursive
@@ -57,7 +57,7 @@ Each arm ends at `wrist_yaw` (5 DoF per arm, no wrist pitch/roll), so IK targets
 Luna targets are normalized to the configured 1.8 m reference skeleton, and the first frame's root
 XY position is moved to the origin. Root Z and the subsequent XY trajectory are preserved.
 
-**Fetch only the Luna description** (private repository, requires access):
+**Fetch only the Luna description** (public repository):
 
 ```bash
 git submodule update --init assets/luna-description
