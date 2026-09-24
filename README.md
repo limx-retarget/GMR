@@ -1,6 +1,6 @@
 ## Quick Start (LimX Robots & BeyondMimic Motion Export)
 
-This section documents the **latest setup, usage, and output format** in this fork: two LimX robots (`limx_oli_edu`, `limx_luna`) plus motion export aligned with [BeyondMimic](https://github.com/HybridRobotics/whole_body_tracking) / Isaac Lab reference-motion conventions.
+This section documents the **latest setup, usage, and output format** in this LimX fork of [General Motion Retargeting (GMR)](https://github.com/YanjieZe/GMR): two LimX robots (`limx_oli_edu`, `limx_luna`) plus motion export aligned with [BeyondMimic](https://github.com/HybridRobotics/whole_body_tracking) / Isaac Lab reference-motion conventions.
 
 ### Installation
 

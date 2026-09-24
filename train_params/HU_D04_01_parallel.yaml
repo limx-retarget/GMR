@@ -1,5 +1,4 @@
 # Copyright 2026 LimX Dynamics. All rights reserved.
-# Confidential and Proprietary. Unauthorized distribution prohibited.
 
 control:
   # PD Drive parameters: (useless here)

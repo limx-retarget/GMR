@@ -60,3 +60,83 @@ booster_t1_29dof
 License:    Apache-2.0
 Copyright: Copyright (c) 2024 Booster Robotics Technology Co., Ltd ("Booster Robotics")
 Source:    Booster Robotics — https://github.com/BoosterRobotics
+
+===============================================================================
+agibot_a2
+===============================================================================
+License:    Mulan PSL v2
+Copyright: Copyright (c) Link-U
+Source:    https://github.com/Link-U-OS/rl_deploy
+
+===============================================================================
+booster_k1
+===============================================================================
+License:    BSD-3-Clause
+Copyright: Copyright (c) 2025 BoosterRobotics
+Source:    https://github.com/BoosterRobotics/booster_assets
+
+===============================================================================
+booster_t1
+===============================================================================
+License:    Apache-2.0
+Copyright: Copyright (c) 2024 Booster Robotics Technology Co., Ltd ("Booster Robotics")
+Source:    https://github.com/BoosterRobotics/booster_gym
+
+===============================================================================
+galaxea_r1pro
+===============================================================================
+License:    Apache-2.0
+Copyright: Copyright (c) 2025 Galaxea
+Source:    https://github.com/OpenGalaxea/GalaxeaManipSim
+
+===============================================================================
+hightorque_hi
+===============================================================================
+License:    BSD-3-Clause
+Copyright: Copyright (c) HighTorque Robotics
+Source:    https://github.com/HighTorque-Robotics/HT_Robot_URDF (hi_25dof/)
+Note:      Upstream has no repository-level LICENSE; BSD is declared in the ROS package.xml.
+
+===============================================================================
+kuavo_s45
+===============================================================================
+License:    BSD-3-Clause
+Copyright: Copyright (c) Leju Robotics
+Source:    https://github.com/LejuRobotics/kuavo-ros-opensource (src/kuavo_assets/models/biped_s45/)
+Note:      Upstream has no repository-level LICENSE; BSD is declared in the ROS package.xml.
+
+===============================================================================
+openloong
+===============================================================================
+License:    Apache-2.0
+Source:    https://github.com/loongOpen/OpenLoong-Dyn-Control
+
+===============================================================================
+tienkung
+===============================================================================
+License:    BSD-3-Clause
+Copyright: The RSL-RL / Isaac Lab Project Developers
+Source:    https://github.com/Open-X-Humanoid/TienKung-Lab
+
+===============================================================================
+unitree_h1_2
+===============================================================================
+License:    BSD-3-Clause
+Copyright: Copyright (c) 2016-2022 HangZhou YuShu TECHNOLOGY CO.,LTD. ("Unitree Robotics")
+Source:    https://github.com/unitreerobotics/unitree_ros
+
+===============================================================================
+berkeley_humanoid_lite
+===============================================================================
+License:    CC BY-SA 4.0
+Copyright: Hybrid Robotics (Berkeley Humanoid)
+Source:    https://github.com/HybridRobotics/berkeley_humanoid_description
+Note:      Creative Commons Attribution-ShareAlike 4.0. Reuse requires attribution, and
+           derivative works must be shared under the same license (ShareAlike). The
+           full license text is at assets/berkeley_humanoid_lite/LICENCE.
+
+===============================================================================
+Submodules (referenced via git submodule, not vendored)
+===============================================================================
+luna-description      — https://github.com/limxdynamics/luna-description (Apache-2.0, LimX Dynamics)
+humanoid-description  — https://github.com/limxdynamics/humanoid-description (Apache-2.0, LimX Dynamics)

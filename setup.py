@@ -5,10 +5,11 @@ setup(
   packages = find_packages(),
   author="Yanjie Ze",
   author_email="lastyanjieze@gmail.com",
+  maintainer="LimX Dynamics",
   description="General Motion Retargeting (GMR) for Humanoid Robots",
   long_description=open("README.md").read(),
   long_description_content_type="text/markdown",
-  url="https://github.com/YanjieZe/GMR",
+  url="https://github.com/limx-retarget/GMR",
   license="MIT",
   version="0.2.0",
   install_requires=[
