@@ -1,8 +1,4 @@
-<div align="right">
-
-**Language**：[English](README.md) | [中文](README.zh-CN.md)
-
-</div>
+**English** | [中文](README.zh-CN.md)
 
 ## Quick Start (LimX Robots & BeyondMimic Motion Export)
 
@@ -50,7 +46,7 @@ git submodule update --init --recursive
 | Base body | `base_link` |
 | MuJoCo XML | `assets/luna-description/HU_L04_description/xml/HU_L04_01_vis.xml` (submodule) |
 | IK configs | `{smplx,bvh_lafan1,bvh_nokov,bvh_xsens,bvh_fzmotion,bvh_noitom}_to_luna.json` |
-| Downstream | [luna-beyondmimic](https://github.com/limx-luna/luna-beyondmimic) motion tracking |
+| Downstream | [luna-beyondmimic](https://github.com/limxdynamics/luna-beyondmimic) motion tracking |
 
 Each arm ends at `wrist_yaw` (5 DoF per arm, no wrist pitch/roll), so IK targets the `*_wrist_yaw_link`.
 
@@ -192,7 +188,7 @@ python scripts/batch_gmr_pkl_to_csv.py --folder output/
 
 | Extension | Schema | Consumer |
 | --- | --- | --- |
-| `.npy` | luna-beyondmimic | `prepare_motion.py` / `train.py` / `play.py` in [luna-beyondmimic](https://github.com/limx-luna/luna-beyondmimic) |
+| `.npy` | luna-beyondmimic | `prepare_motion.py` / `train.py` / `play.py` in [luna-beyondmimic](https://github.com/limxdynamics/luna-beyondmimic) |
 | `.npz`, `.pkl` | BeyondMimic key layout | `scripts/vis_robot_motion.py`, `scripts/batch_gmr_pkl_to_csv.py` |
 
 Body positions and orientations are the MuJoCo body frame (`xpos` / `xquat`), and body velocities are taken at that same frame origin (`mj_objectVelocity` on `mjOBJ_XBODY`), so the velocities are the derivative of the exported positions.

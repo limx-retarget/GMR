@@ -1,8 +1,4 @@
-<div align="right">
-
-**语言**：[English](README.md) | [中文](README.zh-CN.md)
-
-</div>
+[English](README.md) | **中文**
 
 ## 快速上手（LimX 机器人 & BeyondMimic 动作导出）
 
@@ -48,7 +44,7 @@ git submodule update --init --recursive
 | Base body | `base_link` |
 | MuJoCo XML | `assets/luna-description/HU_L04_description/xml/HU_L04_01_vis.xml`（子模块） |
 | IK 配置 | `{smplx,bvh_lafan1,bvh_nokov,bvh_xsens,bvh_fzmotion,bvh_noitom}_to_luna.json` |
-| 下游 | [luna-beyondmimic](https://github.com/limx-luna/luna-beyondmimic) 动作跟踪 |
+| 下游 | [luna-beyondmimic](https://github.com/limxdynamics/luna-beyondmimic) 动作跟踪 |
 
 每条手臂末端为 `wrist_yaw`（每条手臂 5 DoF，无 wrist pitch/roll），因此 IK 目标指向 `*_wrist_yaw_link`。
 
@@ -176,7 +172,7 @@ python scripts/batch_gmr_pkl_to_csv.py --folder output/
 
 | 扩展名 | Schema | 消费方 |
 | --- | --- | --- |
-| `.npy` | luna-beyondmimic | [luna-beyondmimic](https://github.com/limx-luna/luna-beyondmimic) 中的 `prepare_motion.py` / `train.py` / `play.py` |
+| `.npy` | luna-beyondmimic | [luna-beyondmimic](https://github.com/limxdynamics/luna-beyondmimic) 中的 `prepare_motion.py` / `train.py` / `play.py` |
 | `.npz`, `.pkl` | BeyondMimic key 布局 | `scripts/vis_robot_motion.py`、`scripts/batch_gmr_pkl_to_csv.py` |
 
 身体位置与朝向为 MuJoCo body 坐标系（`xpos` / `xquat`），身体速度取自同一坐标系原点（对 `mjOBJ_XBODY` 的 `mj_objectVelocity`），因此速度是导出位置的导数。
