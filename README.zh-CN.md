@@ -255,7 +255,6 @@ print(motion["joint_pos"].shape, motion["fps"], list(motion["joint_names"][:3]))
 
 # 新闻与更新
 - **2026-01-21：** GMR 现已支持 [Xsens](https://www.xsens.com/) BVH 离线数据。
-- **2026-01-12：** GMR 现已支持 [Fourier GR3](https://www.fftai.com/)，这是仓库中第 17 款人形机器人。
 - **2025-12-02：** GMR 现已支持 [TWIST2](https://yanjieze.com/TWIST2)，其使用 [XRoboToolkit SDK](https://github.com/XR-Robotics/XRoboToolkit-PC-Service)。
 - **2025-11-17：** 想加入社区讨论，可添加我的微信 [二维码](https://yanjieze.com/TWIST2/images/my_wechat.jpg)，备注如 "[GMR] [你的名字] [你的单位]"。
 - **2025-11-08：** Jason Peng 的 [MimicKit] 现已支持 GMR 格式。见 [这里](https://github.com/xbpeng/MimicKit/tree/main/tools/gmr_to_mimickit)。
@@ -391,7 +390,6 @@ print(motion["joint_pos"].shape, motion["fps"], list(motion["joint_names"][:3]))
 | 14 | PND Adam Lite `pnd_adam_lite` | Leg (2\*6) + Waist (3) + Arm (2\*5) = 25 | ✅ | TBD | TBD | TBD |
 | 15 | Tienkung `tienkung` | Leg (2\*6) + Arm (2\*4) = 20 | ✅ | TBD | TBD | TBD |
 | 16 | PAL Robotics' Talos `pal_talos` | Head (2) + Arm (2\*7) + Waist (2) + Leg (2\*6) = 30 | ✅ | TBD | TBD | TBD |
-| 17 | Fourier GR3 `fourier_gr3` | Head (2) + Arm (2\*7) + Waist (3) + Leg (2\*6) = 31 | ✅ | TBD | TBD | TBD |
 | 更多机器人即将到来！ |
 | 18 | AgiBot A2 `agibot_a2` | TBD | TBD | TBD | TBD | TBD |
 | 19 | OpenLoong `openloong` | TBD | TBD | TBD | TBD | TBD |
